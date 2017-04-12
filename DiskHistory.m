@@ -22,7 +22,7 @@
 
 - (id)initWithPath:(NSString*)aPath capacity:(unsigned)aCapacity dictionaryRepresentation:(NSDictionary*)dict
 {
-    NSWorkspace *workspace;
+    //NSWorkspace *workspace;
     NSArray *localVolumes;
     NSMutableArray *array;
     NSString *lastCheckDateString;
@@ -32,9 +32,12 @@
 
     [super init];
 
-    workspace = [NSWorkspace sharedWorkspace];
-    localVolumes = [workspace mountedLocalVolumePaths];
-    if ([localVolumes containsObject:aPath] == NO) {
+    //workspace = [NSWorkspace sharedWorkspace];
+    //localVolumes = [workspace mountedLocalVolumePaths];
+    
+    localVolumes = [[NSFileManager defaultManager] mountedVolumeURLsIncludingResourceValuesForKeys:nil options:NSVolumeEnumerationSkipHiddenVolumes];
+
+    if ([localVolumes containsObject:[NSURL fileURLWithPath:aPath]] == NO) {
         [self release];
         return nil;
     }
@@ -55,7 +58,7 @@
         array = [dict objectForKey:@"History"];
         if (array != nil && [array isKindOfClass:[NSArray class]]) {
             count = [array count];
-            offset = (count > capacity) ? count-capacity : 0;
+            offset = (count > capacity) ? (int)(count-capacity) : 0;
             for (i = offset,j = 0; i < count; i++,j++) {
                 history[j] = [[array objectAtIndex:i] longLongValue];
             }
@@ -64,7 +67,13 @@
 
         lastCheckDateString = [dict objectForKey:@"Last Check Date"];
         if (lastCheckDateString != nil) {
-            lastCheckDate = [[NSDate alloc] initWithString:lastCheckDateString];
+            
+            __autoreleasing NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setLocale:[NSLocale systemLocale]];
+            [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+            dateFormatter.dateFormat=@"yyyy-MM-dd HH:mm:ss ZZZ";
+            //lastCheckDate = [[NSDate alloc] initWithString:lastCheckDateString];
+            lastCheckDate = [dateFormatter dateFromString:lastCheckDateString];
         } else {
             lastCheckDate = nil;
         }
@@ -151,7 +160,7 @@
     return path;
 }
 
-- (unsigned)count
+- (NSUInteger)count
 {
     return count;
 }

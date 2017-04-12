@@ -17,7 +17,7 @@ typedef long long FSSize;
 {
     NSString *path;
     FSSize *history;
-    unsigned count;
+    NSUInteger count;
     unsigned capacity;
     FSSize maxFreeSize;
     FSSize minFreeSize;
@@ -34,7 +34,7 @@ typedef long long FSSize;
 - (NSDictionary*)dictionaryRepresentation;
 
 - (NSString*)path;
-- (unsigned)count;
+- (NSUInteger)count;
 - (unsigned)capacity;
 - (FSSize)freeSizeAtIndex:(unsigned)index;
 - (FSSize)currentFreeSize;
